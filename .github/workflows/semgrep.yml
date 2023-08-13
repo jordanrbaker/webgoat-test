@@ -1,5 +1,5 @@
 # Name of this GitHub Actions workflow.
-name: Semgrep
+name: Run SAST Scan
 
 on:
   # Scan on-demand through GitHub Actions interface:
@@ -8,9 +8,15 @@ on:
 jobs:
   semgrep:
     # User-definable name of this GitHub Actions job:
-    name: semgrep/ci
+    name: Execute Scanning
     # If you are self-hosting, change the following `runs-on` value: 
     runs-on: ubuntu-latest
+    permissions:
+      # required for all workflows
+      security-events: write
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
 
     container:
       # A Docker image with Semgrep installed. Do not change this.
@@ -21,17 +27,18 @@ jobs:
 
     steps:
       # Fetch project source with GitHub Actions Checkout.
+      - name: Checkout Code, Execute Scan
       - uses: actions/checkout@v3
       # Run the "semgrep ci" command on the command line of the docker image.
-      - run: semgrep ci --sarif > findings.sarif || true
+      - run: semgrep ci --sarif > /__w/_temp/findings.sarif || true
         env:
            # Add the rules that Semgrep uses by setting the SEMGREP_RULES environment variable. 
            SEMGREP_RULES: p/default # more at semgrep.dev/explore
-      
+      - name: Upload Results
       - uses: github/codeql-action/upload-sarif@v2
         with:
           # Path to SARIF file relative to the root of the repository
-          sarif_file: findings.sarif
+          sarif_file: /home/runner/work/_temp/findings.sarif
           # Optional category for the results
           #  Used to differentiate multiple results for one commit
-          category: my-analysis-tool
+          category: Semgrep
