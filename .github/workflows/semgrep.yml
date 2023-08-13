@@ -8,7 +8,7 @@ on:
 jobs:
   semgrep:
     # User-definable name of this GitHub Actions job:
-    name: Execute Scanning
+
     # If you are self-hosting, change the following `runs-on` value: 
     runs-on: ubuntu-latest
     permissions:
