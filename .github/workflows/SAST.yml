@@ -6,7 +6,7 @@ on:
   workflow_dispatch: {}
   
 jobs:
-  semgrep:
+  SemgrepScan:
     # User-definable name of this GitHub Actions job:
 
     # If you are self-hosting, change the following `runs-on` value: 
@@ -27,16 +27,18 @@ jobs:
 
     steps:
       # Fetch project source with GitHub Actions Checkout.
-      - name: Checkout Repo and Execute Scan
-      - uses: actions/checkout@v3
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Execute SAST Scan  
       # Run the "semgrep ci" command on the command line of the docker image.
-      - run: semgrep ci --sarif > /__w/_temp/findings.sarif || true
+        run: semgrep ci --sarif > /__w/_temp/findings.sarif || true
         env:
            # Add the rules that Semgrep uses by setting the SEMGREP_RULES environment variable. 
            SEMGREP_RULES: p/default # more at semgrep.dev/explore
 
       - name: Upload SARIF Artifact to Repo     
-      - uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v2
         with:
           # Path to SARIF file relative to the root of the repository
           sarif_file: /home/runner/work/_temp/findings.sarif
